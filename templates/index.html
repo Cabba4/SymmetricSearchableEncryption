@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symmetric Searchable Encryption</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Text Files & Search</h1>
+
+        <!-- Upload Form -->
+        <h2>Upload a Text File</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".txt">
+            <button type="submit">Upload</button>
+        </form>
+
+        <!-- Search Form -->
+        <h2>Search Encrypted Data</h2>
+        <form action="/search" method="POST">
+            <input type="text" name="query" placeholder="Search for a word" required>
+            <button type="submit">Search</button>
+        </form>
+
+        {% if message %}
+            <h3>{{ message }}</h3>
+        {% endif %}
+
+        <!-- Search Results -->
+        {% if results %}
+        <h3>Search Results:</h3>
+        <ul>
+            {% for result in results %}
+                <li>{{ result }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <!-- Clean DB -->
+        <h2>Clear Database</h2>
+        <form method="POST" action="/clear_tables">
+            <button type="submit">Clear Database</button>
+        </form>
+
+    </div>
+
+</body>
+</html>
