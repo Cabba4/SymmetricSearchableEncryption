@@ -60,4 +60,6 @@ def clear_database():
     return redirect('/')  # Redirect back to the main page
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
+
