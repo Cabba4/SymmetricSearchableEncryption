@@ -5,7 +5,7 @@ import secrets
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-DB_PATH = './sse_schema.db'
+DB_PATH = os.getenv("SSE_DB_PATH", "./sse_schema.db")
 
 def create_db():
     conn = sqlite3.connect(DB_PATH)
@@ -86,7 +86,7 @@ def encrypt_and_store_file(file_path, KSKE):
     else:
         # File doesn't exist, so we encrypt and store it
         with open(file_path, 'rb') as file:
-            file_content = file.read()
+            file_content = file.read(2 * 1024 * 1024) # Max 2mb file read
 
         encrypted_data = aes_encrypt(file_content.decode(), KSKE)
 

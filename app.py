@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import CSRFProtect
+from werkzeug.utils import secure_filename
 import os
 import hashlib
 from database import encrypt_and_store_file, search_encrypted_data, clear_tables # Functions from database.py
@@ -8,8 +9,13 @@ app = Flask(__name__)
 app.secret_key = os.urandom(32)
 csrf = CSRFProtect(app)
 
-app.config['UPLOAD_FOLDER'] = 'textfiles'
-app.config['ALLOWED_EXTENSIONS'] = {'txt'}
+# App Config
+app.config.update(
+    UPLOAD_FOLDER='textfiles',
+    ALLOWED_EXTENSIONS={'txt'},
+    MAX_CONTENT_LENGTH=1 * 1024 * 1024,  # 1 MB
+)
+
 
 INDEX_PAGE = 'index.html'
 
@@ -26,8 +32,9 @@ def upload_file():
         return redirect(request.url)
     up_file = request.files['file']
     if up_file and allowed_file(up_file.filename):
-        filename = os.path.join(app.config['UPLOAD_FOLDER'], up_file.filename)
-        up_file.save(filename)
+        filename = secure_filename(up_file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        up_file.save(filepath)
 
         # Generate KSKE key when file is uploaded
         ip_address = request.remote_addr
@@ -36,7 +43,7 @@ def upload_file():
         kske_key = hashlib.sha256(combined.encode()).digest()
 
         # Encrypt and store the file using generated KSKE
-        encrypt_and_store_file(filename, kske_key)
+        encrypt_and_store_file(filepath, kske_key)
 
         return redirect(url_for('index'))
     return 'File type not allowed', 400
